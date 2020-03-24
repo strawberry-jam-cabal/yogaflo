@@ -11,6 +11,13 @@ class PoseData(NamedTuple):
         return PoseData(js.get("mirror") is True)
 
 
+def read_poses(posefile) -> Dict[str, PoseData]:
+    poses = json.load(posefile)
+    for name, value in poses.items():
+        poses[name] = PoseData.from_json(value)
+    return poses
+
+
 def mirror(side: str) -> str:
     if side == "left":
         return "right"
@@ -54,18 +61,29 @@ def choose_side(
     return result
 
 
-def can_mirror(poses: Dict[str, PoseData], flow: List[str]) -> bool:
-    return any(
-        pose in poses and poses[pose].mirror
-        for pose in remove_mirrors(poses, flow, "left")
-    )
+def desugar_flow(
+    poses: Dict[str, PoseData], flow: List[str], side: str
+) -> List[str]:
+    primary = choose_side(poses, flow, side)
+    secondary = choose_side(poses, flow, mirror(side))
+    if primary != secondary:
+        if primary[-1] == secondary[0]:
+            secondary = secondary[1:]
+        return primary + secondary
+    else:
+        return primary
+
+
+def print_flow(flow: List[str]) -> None:
+    for pose in flow:
+        print(pose)
 
 
 def validate_flow(poses: Dict[str, PoseData], flow: List[str]) -> bool:
     return choose_side(poses, flow, "left") is not None
 
 
-def build_transition_graph(
+def build_model(
     poses: Dict[str, PoseData], flows: List[List[str]], state_size: int
 ) -> markovify.Chain:
     if not all(validate_flow(poses, flow) for flow in flows):
@@ -74,28 +92,14 @@ def build_transition_graph(
 
 
 def main() -> None:
-    poses = json.load(open("poses.json", "r"))
-    for name, value in poses.items():
-        poses[name] = PoseData.from_json(value)
+    poses = read_poses(open("poses.json", "r"))
 
     flows = json.load(open("flows/flows-tobin.json", "r"))
 
-    model = build_transition_graph(poses, flows, state_size=2)
+    model = build_model(poses, flows, state_size=2)
 
     for _ in range(3):
-        flow = model.walk()
-
-        if can_mirror(poses, flow):
-            left = choose_side(poses, flow, "left")
-            right = choose_side(poses, flow, "right")
-            if left[-1] == right[0]:
-                right = right[1:]
-            flow = left + right
-        else:
-            flow = choose_side(poses, flow, "left")
-
-        for pose in flow:
-            print(pose)
+        print_flow(desugar_flow(poses, model.walk(), "left"))
         print()
 
 
