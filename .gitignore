@@ -1,0 +1,14 @@
+.pytest_cache/*
+__pycache__/*
+*.pyc
+.mypy_cache/
+venv/
+.cache/
+
+.idea/
+.vscode/
+
+# Test output
+test-reports/
+.coverage
+htmlcov/
