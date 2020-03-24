@@ -1,5 +1,6 @@
 import json
 import markovify
+import random
 from typing import Any, Dict, List, NamedTuple
 
 
@@ -98,9 +99,13 @@ def main() -> None:
 
     model = build_model(poses, flows, state_size=2)
 
+    seed = random.randint(0, 999)
+    seed = 206
+    random.seed(seed)
     for _ in range(3):
         print_flow(desugar_flow(poses, model.walk(), "left"))
         print()
+    print(seed)
 
 
 if __name__ == "__main__":
