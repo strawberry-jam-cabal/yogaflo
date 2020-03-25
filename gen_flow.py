@@ -1,26 +1,18 @@
 import json
 import markovify
 import random
-from typing import Any, Dict, IO, List, NamedTuple
+from typing import Dict, List, NamedTuple
 
 
-class PoseData(NamedTuple):
+class Pose(NamedTuple):
+    name: str
+    difficulty: int
     mirror: bool
 
-    @classmethod
-    def from_json(cls, js: Any) -> "PoseData":
-        return PoseData(js.get("mirror") is True)
 
-
-def read_poses(posefile: IO[str]) -> Dict[str, PoseData]:
-    poses = json.load(posefile)
-
-    if not isinstance(poses, dict):
-        raise ValueError("Poses are not a dict: " + str(poses))
-
-    for name, value in poses.items():
-        poses[name] = PoseData.from_json(value)
-    return poses
+def read_poses(posefile_path: str) -> List[Pose]:
+    with open(posefile_path, "r") as handle:
+        return [Pose(**row) for row in json.load(handle)]
 
 
 def mirror(side: str) -> str:
@@ -33,13 +25,13 @@ def mirror(side: str) -> str:
 
 
 def remove_mirrors(
-    poses: Dict[str, PoseData], flow: List[str], side: str
+    pose_map: Dict[str, Pose], flow: List[str], side: str
 ) -> List[str]:
     latest_reversable = None
     result = flow.copy()
 
     for i, pose in enumerate(flow):
-        if pose not in poses:
+        if pose not in pose_map:
             raise ValueError(f"Unknown pose: {pose}")
 
         if pose == "mirror":
@@ -48,30 +40,30 @@ def remove_mirrors(
             result[i] = f"{mirror(side)} {result[latest_reversable]}"
             result[latest_reversable] = f"{side} {result[latest_reversable]}"
             latest_reversable = None
-        elif poses[pose].mirror:
+        elif pose_map[pose].mirror:
             latest_reversable = i
 
     return result
 
 
 def choose_side(
-    poses: Dict[str, PoseData], flow: List[str], side: str
+    pose_map: Dict[str, Pose], flow: List[str], side: str
 ) -> List[str]:
     result = flow.copy()
     for i, pose in enumerate(result):
-        if pose in poses and poses[pose].mirror:
+        if pose in pose_map and pose_map[pose].mirror is True:
             result[i] = f"{side} {pose}"
 
     return result
 
 
 def desugar_flow(
-    poses: Dict[str, PoseData], flow: List[str], side: str
+    pose_map: Dict[str, Pose], flow: List[str], side: str
 ) -> List[str]:
-    no_mirror = remove_mirrors(poses, flow, side)
+    no_mirror = remove_mirrors(pose_map, flow, side)
 
-    primary = choose_side(poses, no_mirror, side)
-    secondary = choose_side(poses, no_mirror, mirror(side))
+    primary = choose_side(pose_map, no_mirror, side)
+    secondary = choose_side(pose_map, no_mirror, mirror(side))
     if primary != secondary:
         if primary[-1] == secondary[0]:
             secondary = secondary[1:]
@@ -85,34 +77,35 @@ def print_flow(flow: List[str]) -> None:
         print(pose)
 
 
-def validate_flow(poses: Dict[str, PoseData], flow: List[str]) -> bool:
+def validate_flow(pose_map: Dict[str, Pose], flow: List[str]) -> bool:
     try:
-        desugar_flow(poses, flow, "left")
+        desugar_flow(pose_map, flow, "left")
         return True
     except Exception:
         return False
 
 
 def build_model(
-    poses: Dict[str, PoseData], flows: List[List[str]], state_size: int
+    pose_map: Dict[str, Pose], flows: List[List[str]], state_size: int
 ) -> markovify.Chain:
-    if not all(validate_flow(poses, flow) for flow in flows):
+    if not all(validate_flow(pose_map, flow) for flow in flows):
         raise ValueError("Invalid flow as input")
     return markovify.Chain(flows, state_size)
 
 
 def main() -> None:
-    poses = read_poses(open("poses.json", "r"))
+    poses = read_poses("poses.json")
+    pose_map = {pose.name: pose for pose in poses}
 
     flows = json.load(open("flows/flows-tobin.json", "r"))
 
-    model = build_model(poses, flows, state_size=2)
+    model = build_model(pose_map, flows, state_size=2)
 
     seed = random.randint(0, 999)
     seed = 206
     random.seed(seed)
     for _ in range(3):
-        print_flow(desugar_flow(poses, model.walk(), "left"))
+        print_flow(desugar_flow(pose_map, model.walk(), "left"))
         print()
     print(seed)
 
