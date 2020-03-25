@@ -53,8 +53,7 @@ def remove_mirrors(
 def choose_side(
     poses: Dict[str, PoseData], flow: List[str], side: str
 ) -> List[str]:
-    result = remove_mirrors(poses, flow, side)
-
+    result = flow.copy()
     for i, pose in enumerate(result):
         if pose in poses and poses[pose].mirror:
             result[i] = f"{side} {pose}"
@@ -65,8 +64,10 @@ def choose_side(
 def desugar_flow(
     poses: Dict[str, PoseData], flow: List[str], side: str
 ) -> List[str]:
-    primary = choose_side(poses, flow, side)
-    secondary = choose_side(poses, flow, mirror(side))
+    no_mirror = remove_mirrors(poses, flow, side)
+
+    primary = choose_side(poses, no_mirror, side)
+    secondary = choose_side(poses, no_mirror, mirror(side))
     if primary != secondary:
         if primary[-1] == secondary[0]:
             secondary = secondary[1:]
@@ -81,7 +82,11 @@ def print_flow(flow: List[str]) -> None:
 
 
 def validate_flow(poses: Dict[str, PoseData], flow: List[str]) -> bool:
-    return choose_side(poses, flow, "left") is not None
+    try:
+        desugar_flow(poses, flow, "left")
+        return True
+    except Exception:
+        return False
 
 
 def build_model(
