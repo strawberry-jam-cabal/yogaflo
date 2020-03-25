@@ -1,7 +1,7 @@
 import json
 import markovify
 import random
-from typing import Any, Dict, List, NamedTuple
+from typing import Any, Dict, IO, List, NamedTuple
 
 
 class PoseData(NamedTuple):
@@ -12,8 +12,12 @@ class PoseData(NamedTuple):
         return PoseData(js.get("mirror") is True)
 
 
-def read_poses(posefile) -> Dict[str, PoseData]:
+def read_poses(posefile: IO[str]) -> Dict[str, PoseData]:
     poses = json.load(posefile)
+
+    if not isinstance(poses, dict):
+        raise ValueError("Poses are not a dict: " + str(poses))
+
     for name, value in poses.items():
         poses[name] = PoseData.from_json(value)
     return poses
