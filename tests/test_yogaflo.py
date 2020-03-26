@@ -2,8 +2,7 @@ import json
 import os
 from typing import Dict
 
-import data
-import yogaflo
+from yogaflo import data, yogaflo
 
 _pose_map = None
 

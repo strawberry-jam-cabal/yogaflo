@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from data import Pose
+from yogaflo.data import Pose
 
 
 def mirror(side: str) -> str:

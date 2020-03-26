@@ -3,8 +3,8 @@ import markovify
 import random
 from typing import Dict, List
 
-from data import Pose, read_poses
-from yogaflo import desugar_flow, print_flow, validate_flow
+from yogaflo.data import Pose, read_poses
+from yogaflo.yogaflo import desugar_flow, print_flow, validate_flow
 
 
 def build_model(
@@ -15,7 +15,7 @@ def build_model(
     return markovify.Chain(flows, state_size)
 
 
-def main() -> None:
+def console_entry() -> None:
     poses = read_poses("poses.json")
     pose_map = {pose.name: pose for pose in poses}
 
@@ -33,4 +33,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    console_entry()
