@@ -13,6 +13,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/tyehle/yogaflo",
     packages=["yogaflo"],
+    package_data={"yogaflo": ["data/poses.json", "data/flows/*.json"]},
     install_requires=["markovify"],
     entry_points={
         "console_scripts": ["yogaflo=yogaflo.__main__:console_entry"]
