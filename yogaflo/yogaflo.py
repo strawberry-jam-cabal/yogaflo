@@ -1,6 +1,9 @@
 from typing import Dict, List
 
-from yogaflo.data import Pose
+from yogaflo import data
+
+
+PoseMap = Dict[str, data.Pose]
 
 
 def mirror(side: str) -> str:
@@ -12,9 +15,7 @@ def mirror(side: str) -> str:
     raise ValueError(f"Unknown side: {side}")
 
 
-def remove_mirrors(
-    pose_map: Dict[str, Pose], flow: List[str], side: str
-) -> List[str]:
+def remove_mirrors(pose_map: PoseMap, flow: List[str], side: str) -> List[str]:
     latest_reversable = None
     result = flow.copy()
 
@@ -34,9 +35,7 @@ def remove_mirrors(
     return result
 
 
-def choose_side(
-    pose_map: Dict[str, Pose], flow: List[str], side: str
-) -> List[str]:
+def choose_side(pose_map: PoseMap, flow: List[str], side: str) -> List[str]:
     result = flow.copy()
     for i, pose in enumerate(result):
         if pose in pose_map and pose_map[pose].mirror is True:
@@ -45,9 +44,7 @@ def choose_side(
     return result
 
 
-def desugar_flow(
-    pose_map: Dict[str, Pose], flow: List[str], side: str
-) -> List[str]:
+def desugar_flow(pose_map: PoseMap, flow: List[str], side: str) -> List[str]:
     no_mirror = remove_mirrors(pose_map, flow, side)
 
     primary = choose_side(pose_map, no_mirror, side)
@@ -65,7 +62,7 @@ def print_flow(flow: List[str]) -> None:
         print(pose)
 
 
-def validate_flow(pose_map: Dict[str, Pose], flow: List[str]) -> bool:
+def validate_flow(pose_map: PoseMap, flow: List[str]) -> bool:
     try:
         desugar_flow(pose_map, flow, "left")
         return True
