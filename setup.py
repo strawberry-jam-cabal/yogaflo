@@ -14,7 +14,9 @@ setuptools.setup(
     url="https://github.com/tyehle/yogaflo",
     packages=["yogaflo"],
     install_requires=["markovify"],
-    entry_points={"console_scripts": ["yogaflo=yogaflo.__main__:console_entry"]},
+    entry_points={
+        "console_scripts": ["yogaflo=yogaflo.__main__:console_entry"]
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
