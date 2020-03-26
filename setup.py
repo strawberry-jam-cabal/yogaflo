@@ -21,9 +21,19 @@ setuptools.setup(
         "console_scripts": ["yogaflo=yogaflo.__main__:console_entry"]
     },
     classifiers=[
-        "Programming Language :: Python :: 3",
+        "Development Status :: 3 - Alpha",
+
         "License :: OSI Approved :: MIT License",
+
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+
         "Operating System :: OS Independent",
+
         "Environment :: Console",
+
+        "Typing :: Typed",
     ],
 )
