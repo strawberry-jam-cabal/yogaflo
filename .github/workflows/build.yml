@@ -11,33 +11,16 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    # strategy:
-    #   matrix:
-    #     python-version: [3.6, 3.7, 3.8]
-
     steps:
     - name: Checkout
       uses: actions/checkout@v2
 
     - name: Setup
       run: |
+        # Find every installed python and add it to PATH
         for name in $(find ${RUNNER_TOOL_CACHE}/Python -wholename "*/x64/bin"); do PATH=$PATH:$name; done;
+        # export our new path for the following steps
         echo "::set-env name=PATH::${PATH}"
-    # echo "::set-env name=PATH::${PATH}:${RUNNER_TOOL_CACHE}/Python/3.8.2/x64/bin:${RUNNER_TOOL_CACHE}/Python/3.7.6/x64/bin:${RUNNER_TOOL_CACHE}/Python/3.6.10/x64/bin"
-    # which -a python
-    # which -a python3
-
-    - name: Test tool cache
-      run: |
-        ls -la $RUNNER_TOOL_CACHE/Python/
-        echo $PATH
-        which -a python
-        which -a python3
-
-    # - name: Set up Python
-    #   uses: actions/setup-python@v1
-    #   with:
-    #     python-version: ${{ matrix.python-version }}
 
     - name: Install dependencies
       run: |
