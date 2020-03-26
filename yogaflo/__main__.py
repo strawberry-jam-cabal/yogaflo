@@ -1,4 +1,3 @@
-import json
 import markovify
 import random
 from typing import Dict, List
@@ -15,10 +14,10 @@ def build_model(
 
 
 def console_entry() -> None:
-    poses = data.read_poses("data/poses.json")
+    poses = data.read_poses()
     pose_map = {pose.name: pose for pose in poses}
 
-    flows = json.load(open("data/flows/flows-tobin.json", "r"))
+    flows = data.read_flows()
 
     model = build_model(pose_map, flows, state_size=2)
 
