@@ -21,9 +21,11 @@ jobs:
 
     - name: Setup
       run: |
-        echo "::set-env name=PATH::${PATH}:${RUNNER_TOOL_CACHE}/Python/3.8.2/x64/bin:${RUNNER_TOOL_CACHE}/Python/3.7.6/x64/bin:${RUNNER_TOOL_CACHE}/Python/3.6.10/x64/bin"
-        which -a python
-        which -a python3
+        for name in $(find ${RUNNER_TOOL_CACHE}/Python -wholename "*/x64/bin"); do PATH=$PATH:$name; done;
+        echo "::set-env name=PATH::${PATH}"
+    # echo "::set-env name=PATH::${PATH}:${RUNNER_TOOL_CACHE}/Python/3.8.2/x64/bin:${RUNNER_TOOL_CACHE}/Python/3.7.6/x64/bin:${RUNNER_TOOL_CACHE}/Python/3.6.10/x64/bin"
+    # which -a python
+    # which -a python3
 
     - name: Test tool cache
       run: |
