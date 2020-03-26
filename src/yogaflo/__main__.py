@@ -21,15 +21,15 @@ def console_entry() -> None:
 
     model = build_model(pose_map, flows, state_size=2)
 
-    seed = random.randint(0, 999)
-    seed = 206
+    seed = random.randint(0, 9999)
+    # seed = 206
     random.seed(seed)
     for _ in range(3):
         states = model.walk()
         flow = yogaflo.desugar_flow(pose_map, states, "left")
         yogaflo.print_flow(flow)
         print()
-    print(seed)
+    # print(seed)
 
 
 if __name__ == "__main__":
