@@ -19,12 +19,18 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    - name: Setup
+      run: |
+        echo "::set-env name=PATH::${PATH}:${RUNNER_TOOL_CACHE}/Python/3.8.2/x64/bin:${RUNNER_TOOL_CACHE}/Python/3.7.6/x64/bin:${RUNNER_TOOL_CACHE}/Python/3.6.10/x64/bin"
+        which -a python
+        which -a python3
+
     - name: Test tool cache
       run: |
         ls -la $RUNNER_TOOL_CACHE/Python/
         echo $PATH
-        ls -la $RUNNER_TOOL_CACHE/Python/3.8.2/
-        find $RUNNER_TOOL_CACHE/Python/3.8.2/
+        which -a python
+        which -a python3
 
     # - name: Set up Python
     #   uses: actions/setup-python@v1
