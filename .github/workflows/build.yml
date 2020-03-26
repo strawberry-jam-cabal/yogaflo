@@ -19,6 +19,13 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    - name: Test tool cache
+      run: |
+        ls -la $RUNNER_TOOL_CACHE/Python/
+        echo $PATH
+        ls -la $RUNNER_TOOL_CACHE/Python/3.8.2/
+        find $RUNNER_TOOL_CACHE/Python/3.8.2/
+
     # - name: Set up Python
     #   uses: actions/setup-python@v1
     #   with:
