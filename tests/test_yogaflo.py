@@ -11,12 +11,13 @@ def pose_map() -> Dict[str, data.Pose]:
     """Get the map of poses reading from file or using cache."""
     global _pose_map
     if _pose_map is None:
-        _pose_map = {pose.name: pose for pose in data.read_poses("poses.json")}
+        path = os.path.join("data", "poses.json")
+        _pose_map = {pose.name: pose for pose in data.read_poses(path)}
     return _pose_map
 
 
 def test_all_flows_valid() -> None:
-    for (dirpath, dirname, filenames) in os.walk("flows"):
+    for (dirpath, dirname, filenames) in os.walk("data/flows"):
         for filename in filenames:
             if filename.endswith(".json"):
                 with open(os.path.join(dirpath, filename), "r") as handle:
