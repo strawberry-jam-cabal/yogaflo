@@ -9,16 +9,13 @@ class Pose(NamedTuple):
     asymmetric: bool
 
 
-def open_data(name: str) -> IO[bytes]:
-    return pkg_resources.resource_stream(__name__, name)
-
-
 def read_poses() -> List[Pose]:
-    return [Pose(**row) for row in json.load(open_data("data/poses.json"))]
+    stream = pkg_resources.resource_stream(__name__, "data/poses.json")
+    return [Pose(**row) for row in json.load(stream)]
 
 
-def read_flows() -> List[List[str]]:
-    result = json.load(open_data("data/flows/flows-tobin.json"))
+def parse_flows(stream: IO[bytes]) -> List[List[str]]:
+    result = json.load(stream)
 
     if not isinstance(result, list):
         raise ValueError("Flow file does not contain a list of flows")
@@ -30,5 +27,15 @@ def read_flows() -> List[List[str]]:
         for pose in flow:
             if not isinstance(pose, str):
                 raise ValueError("Pose is not a string")
+
+    return result
+
+
+def read_flows() -> List[List[str]]:
+    result = []
+
+    for name in pkg_resources.resource_listdir(__name__, "data/flows"):
+        stream = pkg_resources.resource_stream(__name__, "data/flows/" + name)
+        result.extend(parse_flows(stream))
 
     return result
