@@ -37,10 +37,10 @@ def total_difficulty(pose_map: Dict[str, data.Pose], flow: List[str]) -> int:
 def is_easy(pose_map: Dict[str, data.Pose], flow: List[str]) -> bool:
     avg_difficulty = total_difficulty(pose_map, flow) / len(flow)
 
-    return 10 <= len(flow) <= 20 and avg_difficulty < 1.2
+    return (10 <= len(flow) <= 20) and (avg_difficulty < 1.2)
 
 
 def is_hard(pose_map: Dict[str, data.Pose], flow: List[str]) -> bool:
     avg_difficulty = total_difficulty(pose_map, flow) / len(flow)
 
-    return 15 <= len(flow) <= 30 and avg_difficulty > 1.4
+    return (15 <= len(flow) <= 30) and (avg_difficulty > 1.4)
