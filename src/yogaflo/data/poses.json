@@ -1,7 +1,7 @@
 [
     {"name": "mirror",                            "difficulty": 1, "asymmetric": false},
     {"name": "mountain",                          "difficulty": 1, "asymmetric": false},
-    {"name": "sun salutation",                    "difficulty": 1, "asymmetric": false},
+    {"name": "upward salute",                    "difficulty": 1, "asymmetric": false},
     {"name": "cactus",                            "difficulty": 1, "asymmetric": false},
     {"name": "standing forward fold",             "difficulty": 1, "asymmetric": false},
     {"name": "standing halfway lift",             "difficulty": 1, "asymmetric": false},
