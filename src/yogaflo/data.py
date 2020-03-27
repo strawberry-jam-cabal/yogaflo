@@ -6,7 +6,7 @@ from typing import IO, List, NamedTuple
 class Pose(NamedTuple):
     name: str
     difficulty: int
-    mirror: bool
+    asymmetric: bool
 
 
 def open_data(name: str) -> IO[bytes]:

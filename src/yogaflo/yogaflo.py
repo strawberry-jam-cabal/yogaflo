@@ -29,7 +29,7 @@ def remove_mirrors(pose_map: PoseMap, flow: List[str], side: str) -> List[str]:
             result[i] = f"{mirror(side)} {result[latest_reversable]}"
             result[latest_reversable] = f"{side} {result[latest_reversable]}"
             latest_reversable = None
-        elif pose_map[pose].mirror:
+        elif pose_map[pose].asymmetric:
             latest_reversable = i
 
     return result
@@ -38,7 +38,7 @@ def remove_mirrors(pose_map: PoseMap, flow: List[str], side: str) -> List[str]:
 def choose_side(pose_map: PoseMap, flow: List[str], side: str) -> List[str]:
     result = flow.copy()
     for i, pose in enumerate(result):
-        if pose in pose_map and pose_map[pose].mirror is True:
+        if pose in pose_map and pose_map[pose].asymmetric is True:
             result[i] = f"{side} {pose}"
 
     return result

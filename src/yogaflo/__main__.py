@@ -1,8 +1,8 @@
 import markovify
 import random
-from typing import Dict, List
+from typing import cast, Dict, List
 
-from yogaflo import data, yogaflo
+from yogaflo import constraints, data, yogaflo
 
 
 def build_model(
@@ -19,13 +19,19 @@ def console_entry() -> None:
 
     flows = data.read_flows()
 
-    model = build_model(pose_map, flows, state_size=2)
+    model = build_model(pose_map, flows, state_size=1)
 
     seed = random.randint(0, 9999)
     # seed = 206
     random.seed(seed)
-    for _ in range(3):
-        states = model.walk()
+    for constraint in [
+        constraints.is_easy,
+        constraints.is_hard,
+        constraints.is_easy,
+    ]:
+        states = constraints.find_matching(
+            lambda: cast(List[str], model.walk()), constraint, pose_map
+        )
         flow = yogaflo.desugar_flow(pose_map, states, "left")
         yogaflo.print_flow(flow)
         print()
