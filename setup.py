@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="yogaflo",
-    version="0.1.0",
+    version="0.1.1",
     author="Tobin Yehle",
     author_email="tobinyehle@gmail.com",
     description="Yoga Flow Generator",
