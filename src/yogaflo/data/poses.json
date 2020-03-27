@@ -8,6 +8,7 @@
     {"name": "standing side stretch",             "difficulty": 1, "asymmetric": true},
     {"name": "chair",                             "difficulty": 2, "asymmetric": false},
     {"name": "table",                             "difficulty": 1, "asymmetric": false},
+    {"name": "childs pose",                       "difficulty": 1, "asymmetric": false},
     {"name": "cat",                               "difficulty": 1, "asymmetric": false},
     {"name": "cow",                               "difficulty": 1, "asymmetric": false},
     {"name": "downward dog",                      "difficulty": 1, "asymmetric": false},
