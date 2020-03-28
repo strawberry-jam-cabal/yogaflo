@@ -1,17 +1,18 @@
 import json
 import pkg_resources
-from typing import IO, List, NamedTuple
+from typing import IO, List, NamedTuple, Optional
 
 
 class Pose(NamedTuple):
     name: str
     difficulty: int
-    asymmetric: bool
+    can_mirror: bool
+    side: Optional[bool]
 
 
 def read_poses() -> List[Pose]:
     stream = pkg_resources.resource_stream(__name__, "data/poses.json")
-    return [Pose(**row) for row in json.load(stream)]
+    return [Pose(side=None, **row) for row in json.load(stream)]
 
 
 def parse_flows(stream: IO[bytes]) -> List[List[str]]:
@@ -31,11 +32,19 @@ def parse_flows(stream: IO[bytes]) -> List[List[str]]:
     return result
 
 
-def read_flows() -> List[List[str]]:
+def read_flows() -> List[List[Pose]]:
+    pose_map = {pose.name: pose for pose in read_poses()}
+
     result = []
 
     for name in pkg_resources.resource_listdir(__name__, "data/flows"):
         stream = pkg_resources.resource_stream(__name__, "data/flows/" + name)
-        result.extend(parse_flows(stream))
+        for names in parse_flows(stream):
+            flow = []
+            for name in names:
+                if name not in pose_map:
+                    raise ValueError(f"Unknown pose ({name}) in flow: {names}")
+                flow.append(pose_map[name])
+            result.append(flow)
 
     return result

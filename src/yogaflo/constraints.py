@@ -1,46 +1,31 @@
-from typing import Callable, Dict, List
+from typing import Callable, List
 
-from yogaflo import data
+from yogaflo import data, yogaflo
 
 
 def find_matching(
-    gen_flow: Callable[[], List[str]],
-    constraint: Callable[[Dict[str, data.Pose], List[str]], bool],
-    pose_map: Dict[str, data.Pose],
+    gen_flow: Callable[[], List[data.Pose]],
+    constraint: Callable[[List[data.Pose]], bool],
     max_tries: int = 100,
-) -> List[str]:
+) -> List[data.Pose]:
     for _ in range(max_tries):
         flow = gen_flow()
-        if constraint(pose_map, flow):
+        if constraint(flow):
             return flow
     raise ValueError("Could not generate a flow matching the constraints")
 
 
-def total_difficulty(pose_map: Dict[str, data.Pose], flow: List[str]) -> int:
-    total = 0
-    last_asymmetric = None
-    for name in flow:
-        pose = pose_map[name]
-        if pose == "mirror":
-            if last_asymmetric is None:
-                raise ValueError("Nothing to mirror: " + str(flow))
-            total += last_asymmetric.difficulty
-        else:
-            total += pose.difficulty
-
-        if pose.asymmetric:
-            last_asymmetric = pose
-
-    return total
+def total_difficulty(flow: List[data.Pose]) -> int:
+    return sum(pose.difficulty for pose in yogaflo.remove_mirrors(flow))
 
 
-def is_easy(pose_map: Dict[str, data.Pose], flow: List[str]) -> bool:
-    avg_difficulty = total_difficulty(pose_map, flow) / len(flow)
+def is_easy(flow: List[data.Pose]) -> bool:
+    avg_difficulty = total_difficulty(flow) / len(flow)
 
     return (10 <= len(flow) <= 20) and (avg_difficulty < 1.2)
 
 
-def is_hard(pose_map: Dict[str, data.Pose], flow: List[str]) -> bool:
-    avg_difficulty = total_difficulty(pose_map, flow) / len(flow)
+def is_hard(flow: List[data.Pose]) -> bool:
+    avg_difficulty = total_difficulty(flow) / len(flow)
 
     return (15 <= len(flow) <= 30) and (avg_difficulty > 1.4)

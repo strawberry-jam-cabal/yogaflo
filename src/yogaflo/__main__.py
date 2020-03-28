@@ -1,25 +1,22 @@
 import markovify
 import random
-from typing import cast, Dict, List
+from typing import cast, List
 
 from yogaflo import constraints, data, yogaflo
 
 
 def build_model(
-    pose_map: Dict[str, data.Pose], flows: List[List[str]], state_size: int
+    flows: List[List[data.Pose]], state_size: int
 ) -> markovify.Chain:
-    if not all(yogaflo.validate_flow(pose_map, flow) for flow in flows):
+    if not all(yogaflo.validate_flow(flow) for flow in flows):
         raise ValueError("Invalid flow as input")
     return markovify.Chain(flows, state_size)
 
 
 def console_entry() -> None:
-    poses = data.read_poses()
-    pose_map = {pose.name: pose for pose in poses}
-
     flows = data.read_flows()
 
-    model = build_model(pose_map, flows, state_size=1)
+    model = build_model(flows, state_size=1)
 
     seed = random.randint(0, 9999)
     # seed = 206
@@ -30,9 +27,9 @@ def console_entry() -> None:
         constraints.is_easy,
     ]:
         states = constraints.find_matching(
-            lambda: cast(List[str], model.walk()), constraint, pose_map
+            lambda: cast(List[data.Pose], model.walk()), constraint
         )
-        flow = yogaflo.desugar_flow(pose_map, states, "left")
+        flow = yogaflo.desugar_flow(states)
         yogaflo.print_flow(flow)
         print()
     # print(seed)

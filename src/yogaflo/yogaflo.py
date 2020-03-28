@@ -15,56 +15,58 @@ def mirror(side: str) -> str:
     raise ValueError(f"Unknown side: {side}")
 
 
-def remove_mirrors(pose_map: PoseMap, flow: List[str], side: str) -> List[str]:
+def remove_mirrors(flow: List[data.Pose]) -> List[data.Pose]:
     latest_reversable = None
     result = flow.copy()
 
     for i, pose in enumerate(flow):
-        if pose not in pose_map:
-            raise ValueError(f"Unknown pose: {pose}")
-
-        if pose == "mirror":
+        if pose.name == "mirror":
             if latest_reversable is None:
                 raise ValueError("Nothing to mirror")
-            result[i] = f"{mirror(side)} {result[latest_reversable]}"
-            result[latest_reversable] = f"{side} {result[latest_reversable]}"
+
+            result[i] = result[latest_reversable]._replace(side=False)
+            result[latest_reversable] = result[latest_reversable]._replace(
+                side=True
+            )
+
             latest_reversable = None
-        elif pose_map[pose].asymmetric:
+        elif pose.can_mirror:
             latest_reversable = i
 
     return result
 
 
-def choose_side(pose_map: PoseMap, flow: List[str], side: str) -> List[str]:
-    result = flow.copy()
-    for i, pose in enumerate(result):
-        if pose in pose_map and pose_map[pose].asymmetric is True:
-            result[i] = f"{side} {pose}"
+def desugar_flow(flow: List[data.Pose]) -> List[data.Pose]:
+    def set_side(pose: data.Pose, side: bool) -> data.Pose:
+        if pose.can_mirror and pose.side is None:
+            return pose._replace(side=side)
+        return pose
+
+    result = remove_mirrors(flow)
+
+    if any(pose.can_mirror and pose.side is None for pose in result):
+        repeat = result[1:] if result[0] == result[-1] else result[::]
+        result = [set_side(pose, True) for pose in result]
+        return result + [set_side(pose, False) for pose in repeat]
 
     return result
 
 
-def desugar_flow(pose_map: PoseMap, flow: List[str], side: str) -> List[str]:
-    no_mirror = remove_mirrors(pose_map, flow, side)
-
-    primary = choose_side(pose_map, no_mirror, side)
-    secondary = choose_side(pose_map, no_mirror, mirror(side))
-    if primary != secondary:
-        if primary[-1] == secondary[0]:
-            secondary = secondary[1:]
-        return primary + secondary
-    else:
-        return primary
-
-
-def print_flow(flow: List[str]) -> None:
+def print_flow(
+    flow: List[data.Pose], first_side: str = "left", second_side: str = "right"
+) -> None:
     for pose in flow:
-        print(pose)
+        if pose.side is True:
+            print(f"{first_side} {pose.name}")
+        elif pose.side is False:
+            print(f"{second_side} {pose.name}")
+        else:
+            print(pose.name)
 
 
-def validate_flow(pose_map: PoseMap, flow: List[str]) -> bool:
+def validate_flow(flow: List[data.Pose]) -> bool:
     try:
-        desugar_flow(pose_map, flow, "left")
+        desugar_flow(flow)
         return True
     except Exception:
         return False
