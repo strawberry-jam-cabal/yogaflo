@@ -1,8 +1,40 @@
+import argparse
 import markovify
 import random
 from typing import cast, List
 
-from yogaflo import constraints, data, yogaflo
+from yogaflo import __about__, constraints, data, yogaflo
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        prog="yogaflo", description="Generate a yoga flow"
+    )
+
+    parser.add_argument(
+        "-c",
+        "--context",
+        default=1,
+        type=int,
+        help="Set the size of context in the markov chain",
+        metavar="SIZE",
+    )
+
+    parser.add_argument(
+        "-s",
+        "--seed",
+        default=random.random(),
+        help="Set the random seed used to generate flows",
+        metavar="SEED",
+    )
+
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {__about__.__version__}",
+    )
+
+    return parser.parse_args()
 
 
 def build_model(
@@ -14,13 +46,13 @@ def build_model(
 
 
 def console_entry() -> None:
+    args = parse_args()
+
     flows = data.read_flows()
 
-    model = build_model(flows, state_size=1)
+    model = build_model(flows, state_size=args.context)
 
-    seed = random.randint(0, 9999)
-    # seed = 206
-    random.seed(seed)
+    random.seed(args.seed)
     for constraint in [
         constraints.is_easy,
         constraints.is_hard,
@@ -32,7 +64,6 @@ def console_entry() -> None:
         flow = yogaflo.desugar_flow(states)
         yogaflo.print_flow(flow)
         print()
-    # print(seed)
 
 
 if __name__ == "__main__":
