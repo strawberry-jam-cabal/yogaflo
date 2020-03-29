@@ -25,7 +25,7 @@ setuptools.setup(
         "console_scripts": ["yogaflo=yogaflo.__main__:console_entry"]
     },
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
 
         "License :: OSI Approved :: MIT License",
 
