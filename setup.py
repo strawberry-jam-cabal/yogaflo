@@ -3,9 +3,13 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+about = dict()
+with open("src/yogaflo/__about__.py", "r") as fp:
+    exec(fp.read(), about)
+
 setuptools.setup(
     name="yogaflo",
-    version="0.1.2",
+    version=about["__version__"],
     author="Tobin Yehle",
     author_email="tobinyehle@gmail.com",
     description="Yoga Flow Generator",
