@@ -29,6 +29,19 @@ def parse_args() -> argparse.Namespace:
     )
 
     parser.add_argument(
+        "--flows",
+        default=None,
+        help="Additional flows used for training",
+        metavar="FLOW_FILE",
+    )
+
+    parser.add_argument(
+        "--no-builtin-flows",
+        action="store_true",
+        help="Only run user input flows",
+    )
+
+    parser.add_argument(
         "--version",
         action="version",
         version=f"%(prog)s {__about__.__version__}",
@@ -48,7 +61,18 @@ def build_model(
 def console_entry() -> None:
     args = parse_args()
 
-    flows = data.read_flows()
+    pose_map = data.read_pose_map()
+
+    flows = []
+    if args.flows is not None:
+        with open(args.flows, "r") as handle:
+            string_flows = data.parse_flows(handle)
+        actual_flows = data.pose_lookup(pose_map, string_flows)
+        flows.extend(actual_flows)
+
+    if not args.no_builtin_flows:
+        builtin_flows = data.read_flows(pose_map)
+        flows.extend(builtin_flows)
 
     model = build_model(flows, state_size=args.context)
 

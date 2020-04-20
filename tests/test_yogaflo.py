@@ -19,7 +19,8 @@ def from_names(names: List[str]) -> List[data.Pose]:
 
 
 def test_all_flows_valid() -> None:
-    for flow in data.read_flows():
+    pose_map = data.read_pose_map()
+    for flow in data.read_flows(pose_map):
         assert yogaflo.validate_flow(flow)
 
 

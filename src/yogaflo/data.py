@@ -1,6 +1,6 @@
 import json
 import pkg_resources
-from typing import IO, List, NamedTuple, Optional
+from typing import Dict, IO, List, NamedTuple, Optional
 
 
 class Pose(NamedTuple):
@@ -13,6 +13,10 @@ class Pose(NamedTuple):
 def read_poses() -> List[Pose]:
     stream = pkg_resources.resource_stream(__name__, "data/poses.json")
     return [Pose(side=None, **row) for row in json.load(stream)]
+
+
+def read_pose_map() -> Dict[str, Pose]:
+    return {pose.name: pose for pose in read_poses()}
 
 
 def parse_flows(stream: IO[bytes]) -> List[List[str]]:
@@ -32,19 +36,26 @@ def parse_flows(stream: IO[bytes]) -> List[List[str]]:
     return result
 
 
-def read_flows() -> List[List[Pose]]:
-    pose_map = {pose.name: pose for pose in read_poses()}
-
+def read_flows(pose_map: Dict[str, Pose]) -> List[List[Pose]]:
     result = []
 
     for name in pkg_resources.resource_listdir(__name__, "data/flows"):
         stream = pkg_resources.resource_stream(__name__, "data/flows/" + name)
-        for names in parse_flows(stream):
-            flow = []
-            for name in names:
-                if name not in pose_map:
-                    raise ValueError(f"Unknown pose ({name}) in flow: {names}")
-                flow.append(pose_map[name])
-            result.append(flow)
-
+        flows = pose_lookup(pose_map, parse_flows(stream))
+        result.extend(flows)
     return result
+
+
+def pose_lookup(
+    pose_map: Dict[str, Pose], flows: List[List[str]]
+) -> List[List[Pose]]:
+    flow_list = []
+    for flow in flows:
+        individual_flow = []
+        for pose_name in flow:
+            if pose_name not in pose_map:
+                raise ValueError(f"Unknown pose ({pose_name}) in flow: {flow}")
+            individual_flow.append(pose_map[pose_name])
+        flow_list.append(individual_flow)
+
+    return flow_list
