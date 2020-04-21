@@ -1,6 +1,6 @@
 import json
 import pkg_resources
-from typing import Dict, IO, List, NamedTuple, Optional
+from typing import Any, Dict, IO, List, NamedTuple, Optional
 
 
 class Pose(NamedTuple):
@@ -19,7 +19,7 @@ def read_pose_map() -> Dict[str, Pose]:
     return {pose.name: pose for pose in read_poses()}
 
 
-def parse_flows(stream: IO[bytes]) -> List[List[str]]:
+def parse_flows(stream: IO[Any]) -> List[List[str]]:
     result = json.load(stream)
 
     if not isinstance(result, list):
