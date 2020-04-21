@@ -9,7 +9,7 @@ _pose_map = None
 def pose_map() -> Dict[str, data.Pose]:
     global _pose_map
     if _pose_map is None:
-        _pose_map = {pose.name: pose for pose in data.read_poses()}
+        _pose_map = data.read_poses()
     return _pose_map
 
 
@@ -19,8 +19,7 @@ def from_names(names: List[str]) -> List[data.Pose]:
 
 
 def test_all_flows_valid() -> None:
-    pose_map = data.read_pose_map()
-    for flow in data.read_flows(pose_map):
+    for flow in data.read_flows(pose_map()):
         assert yogaflo.validate_flow(flow)
 
 

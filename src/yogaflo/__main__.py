@@ -1,12 +1,12 @@
 import argparse
 import markovify
 import random
-from typing import cast, List
+from typing import cast, List, Optional
 
 from yogaflo import __about__, constraints, data, yogaflo
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(args: Optional[str] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog="yogaflo", description="Generate a yoga flow"
     )
@@ -47,7 +47,7 @@ def parse_args() -> argparse.Namespace:
         version=f"%(prog)s {__about__.__version__}",
     )
 
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 def build_model(
@@ -58,10 +58,8 @@ def build_model(
     return markovify.Chain(flows, state_size)
 
 
-def console_entry() -> None:
-    args = parse_args()
-
-    pose_map = data.read_pose_map()
+def generate_flow(args: argparse.Namespace) -> None:
+    pose_map = data.read_poses()
 
     flows = []
     if args.flows is not None:
@@ -88,6 +86,10 @@ def console_entry() -> None:
         flow = yogaflo.desugar_flow(states)
         yogaflo.print_flow(flow)
         print()
+
+
+def console_entry() -> None:
+    generate_flow(parse_args())
 
 
 if __name__ == "__main__":
